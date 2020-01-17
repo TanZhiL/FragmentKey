@@ -1,20 +1,57 @@
-﻿### 有人想要Android面向切面编程,今天他来了!😜,轻松完成各种骚操作!登录状态拦截,日志拦截,权限拦截,轻松搞定!
+﻿### FragmentKey一款解决使用newInstance创建fragment定义key传值问题的apt框架
 
-### !!!目前发现Gson v2.8.6版与aspectjrt库冲突,导致编译时织入失败,建议使用gson v2.8.5版本!!!
-
-[![](https://jitpack.io/v/TanZhiL/OkAspectj.svg)](https://jitpack.io/#TanZhiL/OkAspectj)
+[![](https://jitpack.io/v/TanZhiL/FragmentKey.svg)](https://jitpack.io/#TanZhiL/FragmentKey)
 ### 更新日志：
-###### v1.02  2019-10.17
+###### v1.0.0 2020.1.17
 * 第一次发布
-#### 快速对指定函数进行切面拦截：
- - 注解完全自定义
- - 拦截规则自定义
- - 无需手动编写切面代码,APT自动生成切面文件
- - 支持组件化
- 
-
+#### 使用前:
+```
+   public TFragment newInstance(String username, String password, int age) {
+        TFragment tFragment = new TFragment();
+//传值
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username);
+        bundle.putString("password", password);
+        bundle.putInt("age", age);
+        tFragment.setArguments(bundle);
+        return tFragment;
+    }
+	
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+		//使用
+        Bundle arguments = getArguments();
+        mUsername = arguments.getString("username");
+        mPassword = arguments.getString("password");
+        age = arguments.getInt("age");
+    }
+```
+#### 使用后:
+```  
+	//定义
+    @Inject
+    public String mUsername;
+    @Inject(name = "password1")
+    public String mPassword;
+    @Inject
+    public int age;
+	//传值
+     TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
+	  
+	@Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		//使用
+        Log.d(TAG, mUsername);
+        Log.d(TAG, mPassword);
+        Log.d(TAG, String.valueOf(age));
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+```
+可以看出此框架简化了传值过程,避免了使用key来传递数据带来的麻烦.
 ## Installation：
-1.project.gradle 添加(同步完成后再进行下一步!!!)
+1.project.gradle
 ```java
     buildscript {
     repositories {
@@ -24,148 +61,75 @@
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'org.aspectj:aspectjtools:1.8.9'
-        classpath 'org.aspectj:aspectjweaver:1.8.9'
     }
 }
 ```
-2.app.gradle 添加(注意每个需要生成切面的文件的组件都需要添加annotationProcessor)
+2.app.gradle 添加
 ```java
 dependencies {
-     implementation 'org.aspectj:aspectjrt:1.8.14'
-   implementation 'com.github.TanZhiL.OkAspectj:okaspectj:1.0.7'
-    annotationProcessor 'com.github.TanZhiL.OkAspectj:okaspectj-compiler:1.0.7'
+   implementation 'com.github.TanZhiL.FragmentKey:fragmentkey:1.0.0'
+    annotationProcessor 'com.github.TanZhiL.FragmentKey:fragmentkey-compiler:1.0.0'
 }
-/*******************独立运行时**********************************/
-import org.aspectj.bridge.IMessage
-import org.aspectj.bridge.MessageHandler
-import org.aspectj.tools.ajc.Main
-
-project.android.applicationVariants.all { variant ->
-    if (!variant.buildType.isDebuggable()) {
-        return;
-    }
-    JavaCompile javaCompile = variant.javaCompile
-    javaCompile.doLast {
-        String[] args = ["-showWeaveInfo",
-                         "-1.8",
-                         "-inpath", javaCompile.destinationDir.toString(),
-                         "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
-                         "-classpath", javaCompile.classpath.asPath,
-                         "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)]
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler);
-    }
-}
-/***********************END****************************/
-/*******************作为组件时**********************************/
-import com.android.build.gradle.LibraryPlugin
-import org.aspectj.bridge.IMessage
-import org.aspectj.bridge.MessageHandler
-import org.aspectj.tools.ajc.Main
-
-android.libraryVariants.all { variant ->
-    LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
-    JavaCompile javaCompile = variant.javaCompile
-    javaCompile.doLast {
-        String[] args = ["-showWeaveInfo",
-                         "-1.5",
-                         "-inpath", javaCompile.destinationDir.toString(),
-                         "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
-                         "-classpath", javaCompile.classpath.asPath,
-                         "-bootclasspath", plugin.project.android.bootClasspath.join(
-                File.pathSeparator)]
-
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler)
-    }
-}
-
-/***********************END****************************/
 ```
 ## Usage：
-1. 在自己想要拦截的注解之上添加 @OkAspectj注解
+1.在需要外部传递的字段上加上Inject注解
 ```java
-@OkAspectj
-@Target(ElementType.METHOD)
-public @interface NeedLogin {
-    int value()default 0;
-}
-
+   @Inject
+    public String mUsername;
+	//name为自定义key值,默认为字段名
+    @Inject(name = "password1")
+    public String mPassword;
+    @Inject
+    public int age;
 ```
-
-2. 在想要拦截的方法加入自己的注解
-
+2.创建fragment实例时使用xxxKey.get(...)方法;
 ```java
-  
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        test();
-        test1();
-    }
-    @NeedLogin(2)
-    private void test() {
-
-    }
-    @TestAnnotaion
-    private void test1() {
-
-    }
-}
-
+      TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
 ```
-3.在Application设置全局切面拦截处理
-
-```java
-public class App extends Application {
-    private static final String TAG = "App";
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        OkAspectjHelper.init(new PointHandler() {
-            @Override
-            public void handlePoint(Class clazz, ProceedingJoinPoint joinPoint) {
-                     Log.d(TAG, "handlePoint() called with: clazz = [" + clazz + "]");
-                if(clazz==NeedLogin.class){
-                    MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-                    NeedLogin annotation = methodSignature.getMethod().getAnnotation(NeedLogin.class);
-                    Log.d(TAG, "handlePoint() called with: joinPoint = [" + annotation.value() + "]");
-                    try {
-                        joinPoint.proceed();
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                }
-            }
-        });
-    }
-}
+##注意:
+目前以支持bundle能传递的常见类型字段
 ```
-4.配置完成,可以在handlePoint(Class clazz, ProceedingJoinPoint joinPoint)中自由发挥你的骚操作了!
-5.也可自己编写切面文件,然后通过调用OkAspectjHelper.notifyHandler(Class clazz,ProceedingJoinPoint joinPoint),发送切点信息进行统一处理.
-
-### 配置出错的请参考 高仿喜马拉雅听Android客户端 https://github.com/TanZhiL/Zhumulangma
+   @Inject
+    protected String s;
+    @Inject
+    protected Integer i;
+    @Inject
+    protected boolean b;
+    @Inject
+    protected float f;
+    @Inject
+    protected double d;
+    @Inject
+    protected long l;
+    @Inject
+    protected ArrayList<String> ls;
+    @Inject
+    protected ArrayList<Integer> li;
+    @Inject
+    protected ArrayList<Parcelable> lp;
+    @Inject
+    protected Serializable se;
+    @Inject
+    protected Parcelable p;
+```
 
 ### 致谢
 * 感谢所有开源库的大佬
 * 借鉴大佬 https://github.com/JakeWharton/butterknife
 ### 问题反馈
-欢迎加星，打call https://github.com/TanZhiL/OkAspectj
+欢迎加星，打call https://github.com/TanZhiL/FragmentKey
 * email：1071931588@qq.com
 ### 关于作者
 谭志龙
 ### 开源项目
 * 快速切面编程开源库 https://github.com/TanZhiL/OkAspectj
+* 一款解决使用newInstance创建fragment定义key传值问题的apt框架 https://github.com/TanZhiL/FragmentKey
 * 高仿喜马拉雅听Android客户端 https://github.com/TanZhiL/Zhumulangma
+* 基于面向对象设计的快速持久化框架 https://github.com/TanZhiL/RxPersistence
 * 骨架屏弹性块 https://github.com/TanZhiL/SkeletonBlock
-* RxPersistence是基于面向对象设计的快速持久化框架 https://github.com/TanZhiL/RxPersistence
 ### License
 ```
-Copyright (C)  tanzhilong OkAspectjFramework Open Source Project
+Copyright (C)  tanzhilong FragmentKey Open Source Project
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

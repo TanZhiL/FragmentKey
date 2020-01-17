@@ -42,4 +42,10 @@ public class TFragment extends Fragment {
     @Inject
     protected Parcelable p;
 
+    public TFragment newInstance(){
+        TFragment tFragment=new TFragment();
+
+
+        return tFragment;
+    }
 }

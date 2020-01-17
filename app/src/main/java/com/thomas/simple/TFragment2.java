@@ -1,5 +1,6 @@
 package com.thomas.simple;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,5 +37,24 @@ public class TFragment2 extends Fragment {
         Log.d(TAG, mPassword);
         Log.d(TAG, String.valueOf(age));
         return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    public TFragment newInstance(String username, String password, int age) {
+        TFragment tFragment = new TFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username);
+        bundle.putString("password", password);
+        bundle.putInt("age", age);
+        tFragment.setArguments(bundle);
+        return tFragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Bundle arguments = getArguments();
+        mUsername = arguments.getString("username");
+        mPassword = arguments.getString("password");
+        age = arguments.getInt("age");
     }
 }
