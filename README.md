@@ -67,12 +67,12 @@
 2.app.gradle 添加
 ```java
 dependencies {
-   implementation 'com.github.TanZhiL.FragmentKey:fragmentkey:1.0.0'
-    annotationProcessor 'com.github.TanZhiL.FragmentKey:fragmentkey-compiler:1.0.0'
+   implementation 'com.github.TanZhiL.FragmentKey:fragmentkey:1.0.1'
+    annotationProcessor 'com.github.TanZhiL.FragmentKey:fragmentkey-compiler:1.0.1'
 }
 ```
 ## Usage：
-1.在需要外部传递的字段上加上Inject注解
+1.在需要外部传递的字段上加上Inject注解,然后build
 ```java
    @Inject
     public String mUsername;
@@ -82,7 +82,7 @@ dependencies {
     @Inject
     public int age;
 ```
-2.创建fragment实例时使用xxxKey.get(...)方法;
+2.创建fragment实例时使用xxxKey.get(...)方法;xxxKey类由apt自动生成.
 ```java
       TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
 ```
