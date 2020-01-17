@@ -72,7 +72,7 @@ dependencies {
 }
 ```
 ## Usage：
-1.在需要外部传递的字段上加上Inject注解,然后build
+1.在fragment中需要外部传递的字段上加上Inject注解,然后build
 ```java
    @Inject
     public String mUsername;
