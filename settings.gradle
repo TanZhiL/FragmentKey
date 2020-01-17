@@ -1,0 +1,2 @@
+include ':app', ':fragmentkey-annotation', ':fragmentkey', ':fragmentkey-compiler'
+rootProject.name='FragmentKey'
