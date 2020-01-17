@@ -74,7 +74,7 @@ public class FragmentKeyProcessor extends AbstractProcessor {
                     .addStatement("$T arguments = getArguments()", ClassName.get("android.os", "Bundle"))
                     .returns(TypeName.VOID);
 
-            MethodSpec.Builder resolve = MethodSpec.methodBuilder("get")
+            MethodSpec.Builder resolve = MethodSpec.methodBuilder("send")
                     .addModifiers(Modifier.PUBLIC)
                     .addStatement(String.format("%s target =new %s()", element.getSimpleName().toString(), element.getSimpleName().toString() + "Key"))
                     .addStatement("$T bundle = new $T()", ClassName.get("android.os", "Bundle"), ClassName.get("android.os", "Bundle"))

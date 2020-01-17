@@ -37,7 +37,7 @@
     @Inject
     public int age;
 	//传值
-     TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
+     TFragment2 tFragment = new TFragment2Key().send("姓名", "密码", 10);
 	  
 	@Nullable
     @Override
@@ -82,9 +82,9 @@ dependencies {
     @Inject
     public int age;
 ```
-2.创建fragment实例时使用xxxKey.get(...)方法;xxxKey类由apt自动生成.
+2.创建fragment实例时使用xxxKey.send(...)方法;xxxKey类由apt自动生成.
 ```java
-      TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
+      TFragment2 tFragment = new TFragment2Key().send("姓名", "密码", 10);
 ```
 ##注意:
 目前以支持bundle能传递的常见类型字段

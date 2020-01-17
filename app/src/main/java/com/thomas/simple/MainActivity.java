@@ -17,11 +17,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TFragment2 tFragment = new TFragment2Key().get("姓名", "密码", 10);
+        TFragment2 tFragment = new TFragment2Key().send("姓名", "密码", 10);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-        fragmentTransaction.add(android.R.id.content,new TFragment2Key().get("姓名","密码",10)).commit();
+        fragmentTransaction.add(android.R.id.content,new TFragment2Key().send("姓名","密码",10)).commit();
 
     }
 
