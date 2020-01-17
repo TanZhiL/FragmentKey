@@ -67,8 +67,8 @@
 2.app.gradle 添加
 ```java
 dependencies {
-   implementation 'com.github.TanZhiL.FragmentKey:fragmentkey:1.0.1'
-    annotationProcessor 'com.github.TanZhiL.FragmentKey:fragmentkey-compiler:1.0.1'
+   implementation 'com.github.TanZhiL.FragmentKey:fragmentkey:1.0.2'
+    annotationProcessor 'com.github.TanZhiL.FragmentKey:fragmentkey-compiler:1.0.2'
 }
 ```
 ## Usage：
